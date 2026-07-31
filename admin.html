@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0B0F1A" />
+<title>Lease Ledger — Admin · Usage Log</title>
+<style>
+  :root{
+    --bg: #0B0F1A;
+    --bg-elev: #0D1120;
+    --panel: #0F1426;
+    --line: #1E2540;
+    --text: #E8ECF7;
+    --muted: #8B93AD;
+    --gold: #D8A657;
+    --gold-soft: rgba(216,166,87,0.12);
+    --teal: #4FD1C5;
+    --red: #E07A7A;
+    --radius: 14px;
+  }
+  *{ box-sizing: border-box; }
+  html,body{
+    margin:0; padding:0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  body{
+    background:
+      radial-gradient(1200px 600px at 15% -10%, rgba(216,166,87,0.06), transparent 60%),
+      radial-gradient(900px 500px at 110% 10%, rgba(79,209,197,0.05), transparent 55%),
+      var(--bg);
+    min-height: 100vh;
+    padding-bottom: 60px;
+  }
+  a{ color: inherit; }
+
+header.top{
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding: 22px 24px 14px;
+max-width: 1040px;
+margin: 0 auto;
+}
+.brand{ font-size: 20px; font-weight: 700; letter-spacing: 0.2px; }
+.brand em{ font-style: normal; color: var(–gold); }
+.back-link{
+font-size: 13px;
+color: var(–muted);
+text-decoration: none;
+border: 1px solid var(–line);
+padding: 7px 14px;
+border-radius: 999px;
+transition: border-color .2s ease, color .2s ease;
+}
+.back-link:hover{ color: var(–text); border-color: var(–gold); }
+
+.hero{
+max-width: 1040px;
+margin: 18px auto 8px;
+padding: 0 24px;
+}
+.eyebrow{
+display:inline-flex;
+align-items:center;
+gap: 8px;
+font-size: 12px;
+letter-spacing: 1.6px;
+text-transform: uppercase;
+color: var(–gold);
+background: var(–gold-soft);
+border: 1px solid rgba(216,166,87,0.3);
+padding: 6px 12px;
+border-radius: 999px;
+margin-bottom: 18px;
+}
+h1{
+font-size: clamp(26px, 5vw, 38px);
+line-height: 1.15;
+margin: 0 0 12px;
+font-weight: 700;
+letter-spacing: -0.5px;
+}
+h1 em{
+font-style: normal;
+background: linear-gradient(90deg, var(–gold), #f0cf94);
+-webkit-background-clip: text;
+background-clip: text;
+color: transparent;
+}
+.lede{ color: var(–muted); font-size: 15px; line-height: 1.6; max-width: 640px; margin: 0; }
+
+/* Stats row */
+.stats{
+max-width: 1040px;
+margin: 28px auto 0;
+padding: 0 24px;
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 14px;
+}
+.stat-card{
+background: var(–panel);
+border: 1px solid var(–line);
+border-radius: var(–radius);
+padding: 18px 20px;
+}
+.stat-label{
+font-size: 11.5px;
+letter-spacing: 0.4px;
+text-transform: uppercase;
+color: var(–muted);
+margin-bottom: 8px;
+}
+.stat-value{
+font-size: 26px;
+font-weight: 700;
+font-variant-numeric: tabular-nums;
+}
+.stat-value.teal{ color: var(–teal); }
+.stat-value.gold{ color: var(–gold); }
+
+.section{
+max-width: 1040px;
+margin: 40px auto 0;
+padding: 0 24px;
+}
+.section-head{
+display:flex;
+align-items: center;
+justify-content: space-between;
+gap: 12px;
+margin-bottom: 16px;
+flex-wrap: wrap;
+}
+.section-title{ font-size: 19px; font-weight: 700; margin: 0; }
+.refresh-btn{
+display:inline-flex;
+align-items:center;
+gap: 6px;
+background: var(–bg-elev);
+border: 1px solid var(–line);
+color: var(–text);
+font-size: 13px;
+padding: 8px 16px;
+border-radius: 999px;
+cursor: pointer;
+transition: border-color .2s ease;
+}
+.refresh-btn:hover{ border-color: var(–gold); }
+
+.card{
+background: var(–panel);
+border: 1px solid var(–line);
+border-radius: var(–radius);
+overflow: hidden;
+box-shadow: 0 20px 40px -20px rgba(0,0,0,0.6);
+}
+.table-scroll{ overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+table.log{
+width: 100%;
+border-collapse: collapse;
+min-width: 560px;
+font-variant-numeric: tabular-nums;
+}
+table.log thead th{
+text-align: left;
+font-size: 11.5px;
+letter-spacing: 0.4px;
+text-transform: uppercase;
+color: var(–muted);
+font-weight: 600;
+padding: 14px 16px;
+background: var(–bg-elev);
+border-bottom: 1px solid var(–line);
+white-space: nowrap;
+}
+table.log tbody td{
+text-align: left;
+padding: 14px 16px;
+font-size: 14px;
+border-bottom: 1px solid var(–line);
+white-space: nowrap;
+}
+table.log tbody tr:last-child td{ border-bottom: none; }
+table.log tbody tr:hover{ background: rgba(216,166,87,0.05); }
+.logins-badge{
+display:inline-block;
+background: var(–gold-soft);
+color: var(–gold);
+font-weight: 700;
+padding: 3px 10px;
+border-radius: 999px;
+font-size: 13px;
+}
+.muted-cell{ color: var(–muted); }
+.empty-row td{
+text-align: center;
+color: var(–muted);
+padding: 32px 16px;
+}
+
+footer.foot{
+max-width: 1040px;
+margin: 50px auto 0;
+padding: 20px 24px 0;
+border-top: 1px solid var(–line);
+color: var(–muted);
+font-size: 12.5px;
+display:flex;
+justify-content: space-between;
+flex-wrap: wrap;
+gap: 8px;
+}
+
+@media (max-width: 640px){
+.stats{ grid-template-columns: 1fr; }
+}
+</style>
+
+</head>
+<body>
+
+  <header class="top">
+    <div class="brand">Lease <em>Ledger</em></div>
+    <a class="back-link" href="calculator.html">← Calculator</a>
+  </header>
+
+  <div class="hero">
+    <span class="eyebrow">● Admin</span>
+    <h1>Usage <em>Log</em></h1>
+    <p class="lede">Who's been using the calculator, how often, and when they were last seen.</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-label">Unique Users</div>
+      <div class="stat-value teal" id="stat-users">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total Logins</div>
+      <div class="stat-value gold" id="stat-logins">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Last Activity</div>
+      <div class="stat-value" id="stat-last" style="font-size:16px;">—</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <h2 class="section-title">Recent Activity</h2>
+      <button class="refresh-btn" onclick="loadUsageLog()">🔄 Refresh</button>
+    </div>
+    <div class="card">
+      <div class="table-scroll">
+        <table class="log">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Logins</th>
+              <th>First Seen</th>
+              <th>Last Seen</th>
+            </tr>
+          </thead>
+          <tbody id="log-body">
+            <tr class="empty-row"><td colspan="4">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <footer class="foot">
+    <span>Lease Ledger · Admin</span>
+    <span>Designed by Lakmal Maduranga</span>
+  </footer>
+
+  <script>
+    // Sample/placeholder data — wire this up to your real usage-log source
+    // (e.g. a Google Sheet, Firebase, or small backend) by replacing loadUsageLog().
+    const sampleLog = [
+      { name: "Nimal Perera", logins: 8, firstSeen: "2026-06-02", lastSeen: "2026-07-29" },
+      { name: "Kasun Silva",  logins: 5, firstSeen: "2026-06-15", lastSeen: "2026-07-28" },
+      { name: "Amaya Fernando", logins: 3, firstSeen: "2026-07-01", lastSeen: "2026-07-22" }
+    ];
+
+    function loadUsageLog(){
+      const body = document.getElementById('log-body');
+      body.innerHTML = '<tr class="empty-row"><td colspan="4">Loading…</td></tr>';
+
+      setTimeout(() => {
+        if (!sampleLog.length){
+          body.innerHTML = '<tr class="empty-row"><td colspan="4">No activity recorded yet.</td></tr>';
+          document.getElementById('stat-users').textContent = '0';
+          document.getElementById('stat-logins').textContent = '0';
+          document.getElementById('stat-last').textContent = '—';
+          return;
+        }
+
+        body.innerHTML = sampleLog.map(row => `
+          <tr>
+            <td>${row.name}</td>
+            <td><span class="logins-badge">${row.logins}</span></td>
+            <td class="muted-cell">${row.firstSeen}</td>
+            <td class="muted-cell">${row.lastSeen}</td>
+          </tr>
+        `).join('');
+
+        const totalLogins = sampleLog.reduce((sum, r) => sum + r.logins, 0);
+        const lastSeenDates = sampleLog.map(r => r.lastSeen).sort();
+        document.getElementById('stat-users').textContent = sampleLog.length;
+        document.getElementById('stat-logins').textContent = totalLogins;
+        document.getElementById('stat-last').textContent = lastSeenDates[lastSeenDates.length - 1];
+      }, 300);
+    }
+
+    loadUsageLog();
+  </script>
+
+</body>
+</html>

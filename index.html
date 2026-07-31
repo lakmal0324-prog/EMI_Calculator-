@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -6,6 +7,7 @@
 <title>Lease Ledger — EMI Calculator</title>
 
 <!-- PWA: installable "Add to Home Screen" support -->
+
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0B0F1A">
 <meta name="mobile-web-app-capable" content="yes">
@@ -17,7 +19,15 @@
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+<!-- Firebase (for simple name-login usage logging) -->
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
@@ -56,6 +66,178 @@
   }
 
   .wrap{max-width:1120px;margin:0 auto;padding:32px 20px 90px;}
+
+  /* ===== Login overlay ===== */
+  #loginOverlay{
+    position:fixed;
+    inset:0;
+    z-index:9999;
+    background:var(--parchment);
+    background-image:
+      radial-gradient(circle at 20% 8%, rgba(61,220,151,0.08), transparent 45%),
+      radial-gradient(circle at 85% 0%, rgba(94,232,172,0.06), transparent 40%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+  }
+  #loginOverlay.hidden{display:none;}
+  .login-card{
+    width:100%;
+    max-width:360px;
+    background:var(--card-bg);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:32px 28px;
+    box-shadow:var(--paper-shadow);
+    text-align:center;
+  }
+  .login-card .brand-mark{
+    font-family:'Fraunces',serif;
+    font-size:32px;
+    font-weight:600;
+    color:var(--ink);
+    margin-bottom:6px;
+  }
+  .login-card .brand-mark em{font-style:italic;font-weight:400;color:var(--gold-2);}
+  .login-card p{
+    color:var(--ink-dim);
+    font-size:13px;
+    margin:0 0 22px 0;
+  }
+  .login-card input{
+    width:100%;
+    padding:12px 14px;
+    border:1.5px solid var(--line);
+    border-radius:7px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:15px;
+    background:var(--parchment-2);
+    color:var(--ink);
+    margin-bottom:14px;
+  }
+  .login-card input:focus{
+    outline:none;
+    border-color:var(--gold);
+    background:var(--parchment-3);
+    box-shadow:0 0 0 3px rgba(61,220,151,0.18);
+  }
+  .login-card button{
+    width:100%;
+    padding:13px;
+    background:#3DDC97;
+    color:#000;
+    border:none;
+    border-radius:8px;
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:15.5px;
+    cursor:pointer;
+    box-shadow:0 4px 14px rgba(61,220,151,0.3);
+  }
+  .login-card button:disabled{opacity:0.6;cursor:not-allowed;}
+  .login-error{
+    color:var(--rust);
+    font-size:12px;
+    margin-top:10px;
+    min-height:16px;
+  }
+  #appRoot.hidden{display:none;}
+
+  /* ===== Admin panel ===== */
+  #adminOverlay{
+    position:fixed;
+    inset:0;
+    z-index:10000;
+    background:rgba(6,8,14,0.88);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+  }
+  #adminOverlay.hidden{display:none;}
+  .admin-panel{
+    width:100%;
+    max-width:720px;
+    max-height:85vh;
+    background:var(--card-bg);
+    border:1px solid var(--line);
+    border-radius:14px;
+    box-shadow:var(--paper-shadow);
+    overflow:hidden;
+  }
+  .admin-panel.hidden{display:none;}
+  .admin-panel-inner{
+    padding:26px;
+    max-height:85vh;
+    overflow-y:auto;
+  }
+  .admin-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+  }
+  .admin-close{
+    background:none;
+    border:1px solid var(--line);
+    color:var(--ink-dim);
+    width:30px;
+    height:30px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:14px;
+  }
+  .admin-close:hover{color:var(--rust-2);border-color:var(--rust);}
+  .admin-summary{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+    margin-bottom:20px;
+  }
+  .admin-stat{
+    background:var(--parchment-2);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:16px;
+    text-align:center;
+  }
+  .admin-stat-num{
+    display:block;
+    font-family:'Fraunces',serif;
+    font-size:28px;
+    font-weight:700;
+    color:var(--gold-2);
+  }
+  .admin-stat-lbl{
+    display:block;
+    font-size:11px;
+    color:var(--ink-dim);
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    margin-top:4px;
+  }
+  .admin-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px;
+  }
+  .admin-table th{
+    text-align:left;
+    padding:10px 12px;
+    background:var(--parchment-2);
+    color:var(--ink-dim);
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.03em;
+    border-bottom:1.5px solid var(--line);
+  }
+  .admin-table td{
+    padding:10px 12px;
+    border-bottom:1px solid var(--line);
+    color:var(--ink);
+  }
+  .admin-table tr:hover td{background:var(--parchment-2);}
 
   /* ===== Credit line ===== */
   .credit-line{
@@ -429,8 +611,62 @@
     .grid-inputs{grid-template-columns:1fr 1fr;}
   }
 </style>
+
 </head>
 <body>
+
+<div id="loginOverlay">
+  <div class="login-card">
+    <div class="brand-mark">Lease <em>Ledger</em></div>
+    <p>ඔබේ නම ඇතුළත් කර දිගටම කරගෙන යන්න</p>
+    <input type="text" id="loginName" placeholder="ඔබේ නම" autocomplete="name">
+    <button id="loginBtn" onclick="handleLogin()">Continue</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<div id="adminOverlay" class="hidden">
+  <div class="login-card" id="adminPasswordCard">
+    <div class="brand-mark">Admin</div>
+    <p>Usage log බැලීමට password එක ඇතුළත් කරන්න</p>
+    <input type="password" id="adminPassword" placeholder="Password">
+    <button onclick="checkAdminPassword()">Enter</button>
+    <div class="login-error" id="adminError"></div>
+    <button onclick="closeAdminPanel()" style="margin-top:10px;background:none;box-shadow:none;color:var(--ink-dim);font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:12px;">Cancel</button>
+  </div>
+
+  <div class="admin-panel hidden" id="adminPanelContent">
+    <div class="admin-panel-inner">
+      <div class="admin-header">
+        <div class="brand-mark" style="font-size:22px;">Usage <em>Log</em></div>
+        <button onclick="closeAdminPanel()" class="admin-close">✕</button>
+      </div>
+
+```
+  <div class="admin-summary" id="adminSummary">
+    <div class="admin-stat"><span class="admin-stat-num" id="statUsers">—</span><span class="admin-stat-lbl">Unique Users</span></div>
+    <div class="admin-stat"><span class="admin-stat-num" id="statVisits">—</span><span class="admin-stat-lbl">Total Logins</span></div>
+  </div>
+
+  <div id="adminLoading" style="text-align:center;color:var(--ink-dim);font-size:13px;padding:20px;">Loading...</div>
+
+  <div style="overflow-x:auto;">
+    <table class="admin-table" id="adminTable" style="display:none;">
+      <thead>
+        <tr><th>Name</th><th>Logins</th><th>Last Seen</th><th>First Seen</th></tr>
+      </thead>
+      <tbody id="adminTableBody"></tbody>
+    </table>
+  </div>
+
+  <button onclick="loadAdminData()" class="add-balloon" style="margin-top:16px;">🔄 Refresh</button>
+</div>
+```
+
+  </div>
+</div>
+
+<div id="appRoot" class="hidden">
 <div class="wrap">
 
   <div class="credit-line">Designed by <span>Lakmal Maduranga</span></div>
@@ -467,15 +703,18 @@
       </div>
     </div>
 
-    <div class="balloon-editor">
-      <label style="display:block;font-size:12px;color:#7a7362;margin-bottom:8px;font-weight:500;">
-        Balloon Payments — the total due for that month is replaced by this amount
-      </label>
-      <div id="balloonList"></div>
-      <button class="add-balloon" onclick="addBalloonRow()">+ Add Balloon Payment</button>
-    </div>
+```
+<div class="balloon-editor">
+  <label style="display:block;font-size:12px;color:#7a7362;margin-bottom:8px;font-weight:500;">
+    Balloon Payments — the total due for that month is replaced by this amount
+  </label>
+  <div id="balloonList"></div>
+  <button class="add-balloon" onclick="addBalloonRow()">+ Add Balloon Payment</button>
+</div>
 
-    <button class="calc-btn" onclick="calculate()">Calculate Schedule</button>
+<button class="calc-btn" onclick="calculate()">Calculate Schedule</button>
+```
+
   </div>
 
   <div id="results" style="display:none;">
@@ -484,30 +723,34 @@
     </div>
     <div class="summary" id="summaryStrip"></div>
 
-    <div class="ledger">
-      <div class="ledger-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Due Date</th>
-              <th>Principal</th>
-              <th>Interest</th>
-              <th>Total Due</th>
-              <th>Balance</th>
-            </tr>
-          </thead>
-          <tbody id="scheduleBody"></tbody>
-          <tfoot id="scheduleFoot"></tfoot>
-        </table>
-      </div>
-    </div>
+```
+<div class="ledger">
+  <div class="ledger-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Due Date</th>
+          <th>Principal</th>
+          <th>Interest</th>
+          <th>Total Due</th>
+          <th>Balance</th>
+        </tr>
+      </thead>
+      <tbody id="scheduleBody"></tbody>
+      <tfoot id="scheduleFoot"></tfoot>
+    </table>
+  </div>
+</div>
+```
+
   </div>
 
   <div id="emptyState" class="empty-note">Fill in the details above and press "Calculate Schedule" — your lease ledger will appear here.</div>
 
   <footer>Reducing balance method · monthly compounding · dates roll to month-end where applicable</footer>
-  <div class="credit-tag">Lakmal Maduranga</div>
+  <div class="credit-tag">Lakmal Maduranga <a href="#" id="adminLink" onclick="openAdminPrompt();return false;" style="color:var(--parchment);opacity:0.12;text-decoration:none;font-size:9px;margin-left:6px;">·</a></div>
+</div>
 </div>
 
 <script>
@@ -1017,6 +1260,206 @@ if('serviceWorker' in navigator){
     navigator.serviceWorker.register('sw.js').catch(()=>{ /* ignore in unsupported/local contexts */ });
   });
 }
+
+/* =========================================================
+   Simple name-login + Firebase usage logging
+   Fill in firebaseConfig below with your own project's keys
+   (Firebase Console → Project settings → General → Your apps → SDK setup).
+   ========================================================= */
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+let db = null;
+try{
+  if(typeof firebase !== 'undefined'){
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+  } else {
+    console.warn('Firebase SDK did not load (blocked or offline) — usage logging disabled.');
+  }
+}catch(e){
+  console.warn('Firebase not configured yet — usage logging disabled.', e);
+}
+
+const LOGIN_STORAGE_KEY = 'leaseLedgerUserName';
+
+function showApp(){
+  document.getElementById('loginOverlay').classList.add('hidden');
+  document.getElementById('appRoot').classList.remove('hidden');
+}
+
+function logUsage(name){
+  if(!db) return; // Firebase not configured — skip silently
+  db.collection('usageLogs').add({
+    name: name,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+    userAgent: navigator.userAgent,
+    language: navigator.language || '',
+    screen: window.screen ? (window.screen.width + 'x' + window.screen.height) : ''
+  }).catch(err=>{
+    console.warn('Usage log failed (check Firestore rules / config):', err);
+  });
+}
+
+function handleLogin(){
+  const input = document.getElementById('loginName');
+  const errorEl = document.getElementById('loginError');
+  const name = input.value.trim();
+  if(!name){
+    errorEl.textContent = 'කරුණාකර නමක් ඇතුළත් කරන්න.';
+    return;
+  }
+  errorEl.textContent = '';
+  localStorage.setItem(LOGIN_STORAGE_KEY, name);
+  logUsage(name);
+  showApp();
+}
+
+// Allow Enter key to submit login
+document.getElementById('loginName').addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter') handleLogin();
+});
+
+// On load: if name already stored on this device, skip straight to the app
+// (still logs this visit so you can see repeat usage in Firebase console)
+(function initLogin(){
+  const savedName = localStorage.getItem(LOGIN_STORAGE_KEY);
+  if(savedName){
+    logUsage(savedName);
+    showApp();
+  }
+})();
+
+/* =========================================================
+   Admin panel — password gate + usage log viewer
+   Change ADMIN_PASSWORD below to something only you know.
+   Note: this is client-side only (no real backend), so it's a
+   "hide from casual users" gate, not a strong security boundary.
+   ========================================================= */
+const ADMIN_PASSWORD = "changeme123";
+const ADMIN_SESSION_KEY = "leaseLedgerAdminOK";
+
+function openAdminPrompt(){
+  document.getElementById('adminOverlay').classList.remove('hidden');
+  document.getElementById('adminPanelContent').classList.add('hidden');
+  document.getElementById('adminPasswordCard').classList.remove('hidden');
+  document.getElementById('adminError').textContent = '';
+  document.getElementById('adminPassword').value = '';
+
+  // If already unlocked this session, skip straight to the panel
+  if(sessionStorage.getItem(ADMIN_SESSION_KEY) === '1'){
+    showAdminPanel();
+  } else {
+    setTimeout(()=>document.getElementById('adminPassword').focus(), 50);
+  }
+}
+
+function closeAdminPanel(){
+  document.getElementById('adminOverlay').classList.add('hidden');
+}
+
+function checkAdminPassword(){
+  const val = document.getElementById('adminPassword').value;
+  if(val === ADMIN_PASSWORD){
+    sessionStorage.setItem(ADMIN_SESSION_KEY, '1');
+    showAdminPanel();
+  } else {
+    document.getElementById('adminError').textContent = 'වැරදි password එකක්.';
+  }
+}
+
+function showAdminPanel(){
+  document.getElementById('adminPasswordCard').classList.add('hidden');
+  document.getElementById('adminPanelContent').classList.remove('hidden');
+  loadAdminData();
+}
+
+// Allow Enter key on admin password field
+document.getElementById('adminPassword').addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter') checkAdminPassword();
+});
+
+function loadAdminData(){
+  const loadingEl = document.getElementById('adminLoading');
+  const tableEl = document.getElementById('adminTable');
+  const tbodyEl = document.getElementById('adminTableBody');
+
+  loadingEl.style.display = 'block';
+  loadingEl.textContent = 'Loading...';
+  tableEl.style.display = 'none';
+
+  if(!db){
+    loadingEl.textContent = 'Firebase සකසා නැත — firebaseConfig එක index.html එකට add කරන්න.';
+    return;
+  }
+
+  db.collection('usageLogs').orderBy('timestamp', 'desc').limit(2000).get()
+    .then(snapshot=>{
+      const byName = {}; // name -> { count, first, last }
+      let totalVisits = 0;
+
+      snapshot.forEach(doc=>{
+        const d = doc.data();
+        const name = (d.name || 'Unknown').trim();
+        const ts = d.timestamp && d.timestamp.toDate ? d.timestamp.toDate() : null;
+        totalVisits++;
+
+        if(!byName[name]){
+          byName[name] = { count: 0, first: ts, last: ts };
+        }
+        byName[name].count++;
+        if(ts){
+          if(!byName[name].last || ts > byName[name].last) byName[name].last = ts;
+          if(!byName[name].first || ts < byName[name].first) byName[name].first = ts;
+        }
+      });
+
+      const names = Object.keys(byName);
+      document.getElementById('statUsers').textContent = names.length;
+      document.getElementById('statVisits').textContent = totalVisits;
+
+      // sort by most recent activity first
+      names.sort((a,b)=>{
+        const la = byName[a].last ? byName[a].last.getTime() : 0;
+        const lb = byName[b].last ? byName[b].last.getTime() : 0;
+        return lb - la;
+      });
+
+      function fmt(d){
+        if(!d) return '—';
+        return d.toLocaleString('en-GB', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+      }
+
+      tbodyEl.innerHTML = names.map(name=>{
+        const row = byName[name];
+        return `<tr><td>${escapeHtml(name)}</td><td>${row.count}</td><td>${fmt(row.last)}</td><td>${fmt(row.first)}</td></tr>`;
+      }).join('');
+
+      loadingEl.style.display = 'none';
+      tableEl.style.display = names.length ? 'table' : 'none';
+      if(!names.length){
+        loadingEl.style.display = 'block';
+        loadingEl.textContent = 'තවම logs නෑ.';
+      }
+    })
+    .catch(err=>{
+      console.error('Failed to load admin data:', err);
+      loadingEl.textContent = 'Load කරන්න බැරි වුණා — Firestore rules / config එක check කරන්න.';
+    });
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
 </script>
+
 </body>
 </html>

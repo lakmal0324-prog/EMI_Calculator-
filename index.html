@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0B0F1A" />
+<title>Lease Ledger — Interest Rates</title>
+<style>
+  :root{
+    --bg: #0B0F1A;
+    --bg-elev: #0D1120;
+    --panel: #0F1426;
+    --line: #1E2540;
+    --text: #E8ECF7;
+    --muted: #8B93AD;
+    --gold: #D8A657;
+    --gold-soft: rgba(216,166,87,0.12);
+    --teal: #4FD1C5;
+    --radius: 14px;
+  }
+
+*{ box-sizing: border-box; }
+
+html,body{
+margin:0; padding:0;
+background: var(–bg);
+color: var(–text);
+font-family: ‘Inter’, -apple-system, BlinkMacSystemFont, ‘Segoe UI’, Roboto, sans-serif;
+-webkit-font-smoothing: antialiased;
+}
+
+body{
+background:
+radial-gradient(1200px 600px at 15% -10%, rgba(216,166,87,0.06), transparent 60%),
+radial-gradient(900px 500px at 110% 10%, rgba(79,209,197,0.05), transparent 55%),
+var(–bg);
+min-height: 100vh;
+padding-bottom: 60px;
+}
+
+a{ color: inherit; }
+
+/* Header */
+header.top{
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding: 22px 24px 14px;
+max-width: 1040px;
+margin: 0 auto;
+}
+.brand{
+font-size: 20px;
+font-weight: 700;
+letter-spacing: 0.2px;
+}
+.brand em{
+font-style: normal;
+color: var(–gold);
+}
+.back-link{
+font-size: 13px;
+color: var(–muted);
+text-decoration: none;
+border: 1px solid var(–line);
+padding: 7px 14px;
+border-radius: 999px;
+transition: border-color .2s ease, color .2s ease;
+}
+.back-link:hover{
+color: var(–text);
+border-color: var(–gold);
+}
+
+/* Hero */
+.hero{
+max-width: 1040px;
+margin: 18px auto 8px;
+padding: 0 24px;
+}
+.eyebrow{
+display:inline-flex;
+align-items:center;
+gap: 8px;
+font-size: 12px;
+letter-spacing: 1.6px;
+text-transform: uppercase;
+color: var(–gold);
+background: var(–gold-soft);
+border: 1px solid rgba(216,166,87,0.3);
+padding: 6px 12px;
+border-radius: 999px;
+margin-bottom: 18px;
+}
+h1{
+font-size: clamp(28px, 5vw, 42px);
+line-height: 1.15;
+margin: 0 0 12px;
+font-weight: 700;
+letter-spacing: -0.5px;
+}
+h1 em{
+font-style: normal;
+background: linear-gradient(90deg, var(–gold), #f0cf94);
+-webkit-background-clip: text;
+background-clip: text;
+color: transparent;
+}
+.lede{
+color: var(–muted);
+font-size: 15px;
+line-height: 1.6;
+max-width: 640px;
+margin: 0 0 8px;
+}
+.updated{
+font-size: 12.5px;
+color: var(–muted);
+display:flex;
+align-items:center;
+gap: 8px;
+margin-top: 18px;
+}
+.updated .dot{
+width:6px; height:6px; border-radius:50%;
+background: var(–teal);
+box-shadow: 0 0 8px var(–teal);
+}
+
+/* Section blocks */
+.section{
+max-width: 1040px;
+margin: 40px auto 0;
+padding: 0 24px;
+}
+.section-head{
+display:flex;
+align-items: baseline;
+gap: 12px;
+margin-bottom: 16px;
+flex-wrap: wrap;
+}
+.section-num{
+font-family: ‘Georgia’, serif;
+font-size: 14px;
+color: var(–bg);
+background: var(–gold);
+width: 26px; height: 26px;
+display:flex; align-items:center; justify-content:center;
+border-radius: 7px;
+font-weight: 700;
+flex: none;
+}
+.section-title{
+font-size: 19px;
+font-weight: 700;
+margin: 0;
+}
+.section-sub{
+color: var(–muted);
+font-size: 13px;
+margin: -8px 0 18px 38px;
+}
+
+/* Table card */
+.card{
+background: var(–panel);
+border: 1px solid var(–line);
+border-radius: var(–radius);
+overflow: hidden;
+box-shadow: 0 20px 40px -20px rgba(0,0,0,0.6);
+}
+
+.table-scroll{
+overflow-x: auto;
+-webkit-overflow-scrolling: touch;
+}
+
+table.rates{
+width: 100%;
+border-collapse: collapse;
+min-width: 620px;
+font-variant-numeric: tabular-nums;
+}
+table.rates thead th{
+text-align: center;
+font-size: 11.5px;
+letter-spacing: 0.4px;
+text-transform: uppercase;
+color: var(–muted);
+font-weight: 600;
+padding: 14px 10px;
+background: var(–bg-elev);
+border-bottom: 1px solid var(–line);
+white-space: nowrap;
+}
+table.rates thead th:first-child{
+text-align: left;
+padding-left: 20px;
+position: sticky;
+left: 0;
+z-index: 3;
+background: var(–bg-elev);
+box-shadow: 2px 0 8px -2px rgba(0,0,0,0.5);
+}
+table.rates tbody td{
+text-align: center;
+padding: 14px 10px;
+font-size: 14.5px;
+border-bottom: 1px solid var(–line);
+color: var(–text);
+white-space: nowrap;
+}
+table.rates tbody tr:last-child td{
+border-bottom: none;
+}
+table.rates tbody tr:hover{
+background: rgba(216,166,87,0.05);
+}
+table.rates tbody tr:hover .asset-cell{
+background: #161d36;
+}
+.asset-cell{
+text-align: left !important;
+padding-left: 20px !important;
+display: flex;
+align-items: center;
+gap: 10px;
+font-weight: 600;
+white-space: nowrap;
+position: sticky;
+left: 0;
+z-index: 2;
+background: var(–panel);
+box-shadow: 2px 0 8px -2px rgba(0,0,0,0.5);
+}
+.asset-icon{
+font-size: 17px;
+width: 22px;
+text-align: center;
+flex: none;
+}
+.rate-val{
+font-weight: 700;
+color: var(–teal);
+}
+.na{
+color: var(–muted);
+font-weight: 400;
+}
+
+/* footnote */
+.footnote{
+display:flex;
+gap:10px;
+align-items:flex-start;
+margin-top: 14px;
+color: var(–muted);
+font-size: 12.5px;
+line-height: 1.5;
+}
+.footnote span.mark{
+color: var(–gold);
+flex: none;
+}
+
+/* CTA */
+.cta{
+max-width: 1040px;
+margin: 48px auto 0;
+padding: 0 24px;
+}
+.cta-card{
+background: linear-gradient(135deg, rgba(216,166,87,0.10), rgba(79,209,197,0.06));
+border: 1px solid var(–line);
+border-radius: var(–radius);
+padding: 28px 26px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap: 20px;
+flex-wrap: wrap;
+}
+.cta-card h3{
+margin: 0 0 6px;
+font-size: 18px;
+}
+.cta-card p{
+margin:0;
+color: var(–muted);
+font-size: 13.5px;
+}
+.cta-btn{
+background: var(–gold);
+color: #17120A;
+text-decoration: none;
+font-weight: 700;
+font-size: 14px;
+padding: 12px 22px;
+border-radius: 10px;
+white-space: nowrap;
+transition: transform .15s ease, box-shadow .15s ease;
+box-shadow: 0 8px 20px -8px rgba(216,166,87,0.5);
+}
+.cta-btn:hover{
+transform: translateY(-1px);
+box-shadow: 0 12px 24px -8px rgba(216,166,87,0.6);
+}
+
+footer.foot{
+max-width: 1040px;
+margin: 50px auto 0;
+padding: 20px 24px 0;
+border-top: 1px solid var(–line);
+color: var(–muted);
+font-size: 12.5px;
+display:flex;
+justify-content: space-between;
+flex-wrap: wrap;
+gap: 8px;
+}
+
+@media (max-width: 640px){
+.section-sub{ margin-left: 0; }
+.cta-card{ flex-direction: column; align-items:flex-start; }
+}
+</style>
+
+</head>
+<body>
+
+  <header class="top">
+    <div class="brand">Lease <em>Ledger</em></div>
+    <a class="back-link" href="calculator.html">EMI Calculator →</a>
+  </header>
+
+  <div class="hero">
+    <span class="eyebrow">● Rate Card</span>
+    <h1>Leasing <em>Interest Rates</em></h1>
+    <p class="lede">Reference rates for financed and reconditioned assets, by tenure. Use these figures alongside the EMI Calculator to build an accurate repayment schedule.</p>
+    <div class="updated"><span class="dot"></span> Rates last confirmed for current cycle — verify with your leasing officer before finalising</div>
+  </div>
+
+  <!-- SECTION 1 -->
+
+  <div class="section">
+    <div class="section-head">
+      <span class="section-num">1</span>
+      <h2 class="section-title">Unregistered</h2>
+    </div>
+    <div class="card">
+      <div class="table-scroll">
+        <table class="rates">
+          <thead>
+            <tr>
+              <th>Asset Category</th>
+              <th>12–24 mo</th>
+              <th>25–36 mo</th>
+              <th>37–48 mo</th>
+              <th>49–60 mo</th>
+              <th>61–72 mo</th>
+              <th>73–84 mo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="asset-cell"><span class="asset-icon">🚗</span>Cars, SUVs &amp; Double Cabs</td>
+              <td class="rate-val">13.50%</td>
+              <td class="rate-val">13.50%</td>
+              <td class="rate-val">14.00%</td>
+              <td class="rate-val">14.50%</td>
+              <td class="rate-val">15.00%</td>
+              <td class="rate-val">16.00%</td>
+            </tr>
+            <tr>
+              <td class="asset-cell"><span class="asset-icon">🚐</span>Vans</td>
+              <td class="rate-val">14.00%</td>
+              <td class="rate-val">14.50%</td>
+              <td class="rate-val">15.00%</td>
+              <td class="rate-val">15.50%</td>
+              <td class="na">N/A</td>
+              <td class="na">N/A</td>
+            </tr>
+            <tr>
+              <td class="asset-cell"><span class="asset-icon">🚛</span>Lorries, Buses &amp; Trucks</td>
+              <td class="rate-val">16.25%</td>
+              <td class="rate-val">16.75%</td>
+              <td class="rate-val">17.25%</td>
+              <td class="rate-val">17.75%</td>
+              <td class="na">N/A</td>
+              <td class="na">N/A</td>
+            </tr>
+            <tr>
+              <td class="asset-cell"><span class="asset-icon">🚜</span>Tractors</td>
+              <td class="rate-val">20.25%</td>
+              <td class="rate-val">20.50%</td>
+              <td class="rate-val">20.75%</td>
+              <td class="rate-val">21.00%</td>
+              <td class="na">N/A</td>
+              <td class="na">N/A</td>
+            </tr>
+            <tr>
+              <td class="asset-cell"><span class="asset-icon">🛺</span>Three-Wheelers</td>
+              <td class="rate-val">22.25%</td>
+              <td class="rate-val">23.25%</td>
+              <td class="rate-val">24.25%</td>
+              <td class="rate-val">25.25%</td>
+              <td class="na">N/A</td>
+              <td class="na">N/A</td>
+            </tr>
+            <tr>
+              <td class="asset-cell"><span class="asset-icon">🏍️</span>Motorcycles</td>
+              <td class="rate-val">24.25%</td>
+              <td class="rate-val">25.25%</td>
+              <td class="na">N/A</td>
+              <td class="na">N/A</td>
+              <td class="na">N/A</td>
+              <td class="na">N/A</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="footnote"><span class="mark">＊</span> Rates apply to brand new and reconditioned vehicles that are not yet registered, financed through a standard lease facility.</div>
+  </div>
+
+  <!-- SECTION 2 -->
+
+  <div class="section">
+    <div class="section-head">
+      <span class="section-num">2</span>
+      <h2 class="section-title">Registered</h2>
+    </div>
+    <div class="card">
+      <div class="table-scroll">
+        <table class="rates">
+          <thead>
+            <tr>
+              <th>Asset Category</th>
+              <th>12–24 mo</th>
+              <th>25–36 mo</th>
+              <th>37–48 mo</th>
+              <th>49–60 mo</th>
+              <th>61–72 mo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="asset-cell"><span class="asset-icon">🚗</span>Cars, SUVs &amp; Double Cabs</td>
+              <td class="rate-val">14.00%</td>
+              <td class="rate-val">14.00%</td>
+              <td class="rate-val">14.50%</td>
+              <td class="rate-val">15.00%</td>
+              <td class="rate-val">15.50%</td>
+            </tr>
+            <tr>
+              <td class="asset-cell"><span class="asset-icon">🚐</span>Vans</td>
+              <td class="rate-val">14.50%</td>
+              <td class="rate-val">15.00%</td>
+              <td class="rate-val">15.50%</td>
+              <td class="rate-val">16.00%</td>
+              <td class="na">N/A</td>
+            </tr>
+            <tr>
+              <td class="asset-cell"><span class="asset-icon">🚛</span>Lorries, Buses &amp; Trucks</td>
+              <td class="rate-val">16.75%</td>
+              <td class="rate-val">17.25%</td>
+              <td class="rate-val">17.75%</td>
+              <td class="rate-val">18.25%</td>
+              <td class="na">N/A</td>
+            </tr>
+            <tr>
+              <td class="asset-cell"><span class="asset-icon">🛺</span>Three-Wheelers</td>
+              <td class="rate-val">22.75%</td>
+              <td class="rate-val">23.75%</td>
+              <td class="rate-val">24.75%</td>
+              <td class="rate-val">25.75%</td>
+              <td class="na">N/A</td>
+            </tr>
+            <tr>
+              <td class="asset-cell"><span class="asset-icon">🏍️</span>Motorcycles</td>
+              <td class="rate-val">24.75%</td>
+              <td class="rate-val">25.75%</td>
+              <td class="na">N/A</td>
+              <td class="na">N/A</td>
+              <td class="na">N/A</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="footnote"><span class="mark">＊</span> Rates apply to used vehicles already registered in the owner's name at the time of the facility.</div>
+  </div>
+
+  <div class="cta">
+    <div class="cta-card">
+      <div>
+        <h3>Ready to run the numbers?</h3>
+        <p>Take the rate for your asset and tenure into the calculator to generate a full repayment schedule.</p>
+      </div>
+      <a class="cta-btn" href="calculator.html">EMI Calculator →</a>
+    </div>
+  </div>
+
+  <footer class="foot">
+    <span>Lease Ledger · Rate Card</span>
+    <span>Step 1 of 2 — Rates</span>
+  </footer>
+
+</body>
+</html>
